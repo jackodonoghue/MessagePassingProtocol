@@ -5,20 +5,31 @@ import java.awt.*;
 
 public class UI {
     public static void main(String[] args) {
-        //Create message sending panel
-
-        //add type message textbox
-
-        //add send message button
-
-        //add download message panel
-
-        //add button to download messages
-
-        //add panel to fill with messages -- is there a specific text panel?
 
         //create jframe
-        //set size
-        //set visible
+        JFrame frame = new JFrame("Message Sending Protocol");
+        frame.setLayout(new GridBagLayout());
+        GridBagConstraints constraints = new GridBagConstraints();
+
+        //Add client name
+        frame.add(new JLabel("Welcome, client "), constraints);
+
+        //Add send message UI
+        constraints.weighty = 1;
+        constraints.weightx = 1;
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.gridy = 1;
+        frame.add(new SendMessageUI(), constraints);
+
+        //Add receive message UI
+        constraints.weighty = 1;
+        constraints.weightx = 1;
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.gridy = 2;
+        frame.add(new RecieveMessageUI(), constraints);
+
+        frame.setSize(500,500);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setVisible(true);
     }
 }
