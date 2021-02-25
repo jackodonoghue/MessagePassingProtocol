@@ -21,14 +21,14 @@ public class SendMessageUI extends JPanel implements DocumentListener {
         constraints.fill = GridBagConstraints.BOTH;
         constraints.gridx = 1;
         constraints.gridy = 0;
-        add(setTextPanel(),constraints);
+        add(setTextPanel(), constraints);
         //panel for label and send button
         constraints.weighty = .01;
         constraints.weightx = 1;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridx = 1;
         constraints.gridy = 1;
-        add(setSendPanel(),constraints);
+        add(setSendPanel(), constraints);
     }
 
     private JPanel setSendPanel() {
@@ -46,13 +46,13 @@ public class SendMessageUI extends JPanel implements DocumentListener {
         constraints.weightx = 0.5;
         constraints.gridx = 2;
         constraints.gridy = 0;
-        constraints.insets = new Insets(0,0,0,0);
+        constraints.insets = new Insets(0, 0, 0, 0);
         sendPanel.add(sendButton, constraints);
 
         return sendPanel;
     }
 
-    private JPanel setTextPanel(){
+    private JPanel setTextPanel() {
         JPanel textPanel = new JPanel(new BorderLayout());
         textPanel.setPreferredSize(new Dimension(200, 100));
 
@@ -69,13 +69,13 @@ public class SendMessageUI extends JPanel implements DocumentListener {
     @Override
     public void insertUpdate(DocumentEvent e) {
         this.counter++;
-        this.counterLabel.setText(this.counter + "/280 Characters used" );
+        this.counterLabel.setText(this.counter + "/280 Characters used");
     }
 
     @Override
     public void removeUpdate(DocumentEvent e) {
         this.counter--;
-        this.counterLabel.setText(this.counter + "/280 Characters used" );
+        this.counterLabel.setText(this.counter + "/280 Characters used");
     }
 
     @Override
