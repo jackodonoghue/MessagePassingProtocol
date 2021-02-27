@@ -2,6 +2,7 @@ package server;
 
 import java.net.*;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This module contains the application logic of an echo server
@@ -13,9 +14,11 @@ import java.util.ArrayList;
  */
 
 public class MPPServer {
+    private static ArrayList<MPPServerThread> clients = new ArrayList<>();
+    private static List<String> allMessages;
+
     public static void main(String[] args) {
         int serverPort = 7;    // default port
-        ArrayList<MPPServerThread> clients = new ArrayList<>();
 
         if (args.length == 1)
             serverPort = Integer.parseInt(args[0]);
@@ -37,6 +40,7 @@ public class MPPServer {
                 Thread theThread = new Thread(client);
                 theThread.start();
                 clients.add(client);
+                informAllClientsOfNewClients();
                 // and go on to the next client
             } //end while forever
         } // end try
@@ -44,4 +48,19 @@ public class MPPServer {
             ex.printStackTrace();
         } // end catch
     } //end main
+
+    private static void informAllClientsOfNewClients() {
+        for (MPPServerThread client : clients) {
+            client.setClients(clients);
+        }
+    }
+
+    public static List<String> sendAllMessages() {
+        allMessages = new ArrayList<>();
+        for (MPPServerThread client : clients) {
+            client.getAllMessages().forEach(message -> allMessages.add(message));
+        }
+
+        return allMessages;
+    }
 } // end class

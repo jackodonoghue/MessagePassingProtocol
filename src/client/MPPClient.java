@@ -1,6 +1,7 @@
 package client;
 
 import java.io.*;
+import java.util.List;
 
 /**
  * This module contains the presentaton logic of an Echo Client.
@@ -9,6 +10,7 @@ import java.io.*;
  */
 public class MPPClient {
     static final String endMessage = ".";
+    static final String allMessagesCharacter = "*";
 
     public static void main(String[] args) {
         InputStreamReader is = new InputStreamReader(System.in);
@@ -45,7 +47,10 @@ public class MPPClient {
                     done = true;
                     helper.terminateConnection();
                 }
-
+                else if (message.trim().equals(allMessagesCharacter)){
+                    List<String> messages = helper.getAllMessages();
+                    System.out.println(messages);
+                }
                 //otherwise 'get message'
                 else {
                     echo = helper.getMessage(message);

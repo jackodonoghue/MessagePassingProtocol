@@ -3,6 +3,7 @@ package server;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -14,8 +15,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 class MPPServerThread implements Runnable {
     static final String endMessage = ".";
+    static final String allMessageCharacter = "*";
     MyStreamSocket myDataSocket;
-    private ArrayList<String> messages;
+    private List<String> messages;
+    private List<MPPServerThread> clients;
+    private List<String> allMessages;
 
     MPPServerThread(MyStreamSocket myDataSocket) {
         this.myDataSocket = myDataSocket;
@@ -35,12 +39,14 @@ class MPPServerThread implements Runnable {
                 if ((message.trim()).equals(endMessage)) {
                     //Session over; close the data socket.
                     System.out.println("Session over.");
-                    for (String m: messages) {
-                        System.out.println("end: "+m);
-                    }
                     myDataSocket.close();
                     done = true;
                 } //end if
+                else if(message.trim().equals(allMessageCharacter)){
+                    System.out.println("getting al messages");
+                    getAllMessages();
+                    myDataSocket.sendAllMessages(messages);
+                }
                 else {
                     // Now send the echo to the requester
                     messages.add(message);
@@ -53,7 +59,15 @@ class MPPServerThread implements Runnable {
         } // end catch
     } //end run
 
-    public ArrayList<String> getAllMessages(){
-        return messages;
+    public List<String> getAllMessages(){
+        allMessages = new ArrayList<>();
+        for (MPPServerThread client: clients) {
+            client.messages.forEach(m -> this.allMessages.add(m));
+        }
+        return this.allMessages;
     }
-} //end class 
+
+    public void setClients(ArrayList<MPPServerThread> clients) {
+        this.clients = clients;
+    }
+} //end class

@@ -14,6 +14,7 @@ import java.util.List;
 public class MPPClientHelper {
 
     static final String endMessage = ".";
+    static final String allMessagesCharacter = "*";
     private MyStreamSocket mySocket;
     private InetAddress serverHost;
     private int serverPort;
@@ -27,7 +28,7 @@ public class MPPClientHelper {
     } // end constructor
 
 
-    public String getMessage(String message) throws SocketException, IOException {
+    public String getMessage(String message) throws SocketException, IOException, ClassNotFoundException {
         String echo = "";
         mySocket.sendMessage(message);
         // now receive the echo
@@ -40,7 +41,8 @@ public class MPPClientHelper {
         mySocket.close();
     } // end done
 
-    public List<String> getAllMessages() {
-        mySocket.receiveAllMessages();
+    public List<String> getAllMessages() throws IOException, ClassNotFoundException {
+        mySocket.sendMessage(allMessagesCharacter);
+        return mySocket.receiveAllMessages();
     }
 } //end class

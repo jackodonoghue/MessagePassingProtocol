@@ -2,6 +2,8 @@ package server;
 
 import java.net.*;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A wrapper class of Socket which contains
@@ -11,8 +13,8 @@ import java.io.*;
  */
 public class MyStreamSocket extends Socket {
     private Socket socket;
-    private BufferedReader input;
-    private PrintWriter output;
+    private ObjectOutputStream outStream;
+    private ObjectInputStream inStream;
 
     MyStreamSocket(InetAddress acceptorHost,
                    int acceptorPort) throws SocketException,
@@ -27,35 +29,38 @@ public class MyStreamSocket extends Socket {
         setStreams();
     }
 
-    private void setStreams() throws IOException {
+    private void setStreams( ) throws IOException{
         // get an input stream for reading from the data socket
-        InputStream inStream = socket.getInputStream();
-        input =
-                new BufferedReader(new InputStreamReader(inStream));
-        OutputStream outStream = socket.getOutputStream();
-        // create a PrinterWriter object for character-mode output
-        output =
-                new PrintWriter(new OutputStreamWriter(outStream));
+        outStream = new ObjectOutputStream(socket.getOutputStream());
+        inStream = new ObjectInputStream(socket.getInputStream());
     }
 
     public void sendMessage(String message)
             throws IOException {
-        output.print(message + "\n");
-        //The ensuing flush method call is necessary for the data to
-        // be written to the socket data stream before the
-        // socket is closed.
-        output.flush();
+        outStream.writeObject(message);
     } // end sendMessage
 
     public String receiveMessage()
-            throws IOException {
+            throws IOException, ClassNotFoundException {
         // read a line from the data stream
-        String message = input.readLine();
+        String message = (String)inStream.readObject();
         return message;
     } //end receiveMessage
 
     public void close()
             throws IOException {
         socket.close();
+    }
+
+    public List<String> receiveAllMessages()
+            throws IOException, ClassNotFoundException {
+        // read a line from the data stream
+        List<String> message = (ArrayList<String>)inStream.readObject();
+        return message;
+    } //end receiveMessage
+
+    //send all of the messages to the client
+    public void sendAllMessages(List<String> messages) throws IOException {
+        outStream.writeObject(messages);
     }
 } //end class
