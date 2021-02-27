@@ -1,4 +1,4 @@
-package server;
+package common;
 
 import java.net.*;
 import java.io.*;
@@ -16,7 +16,7 @@ public class MyStreamSocket extends Socket {
     private ObjectOutputStream outStream;
     private ObjectInputStream inStream;
 
-    MyStreamSocket(InetAddress acceptorHost,
+    public MyStreamSocket(InetAddress acceptorHost,
                    int acceptorPort) throws SocketException,
             IOException {
         socket = new Socket(acceptorHost, acceptorPort);
@@ -24,7 +24,7 @@ public class MyStreamSocket extends Socket {
 
     }
 
-    MyStreamSocket(Socket socket) throws IOException {
+    public MyStreamSocket(Socket socket) throws IOException {
         this.socket = socket;
         setStreams();
     }
@@ -35,15 +35,15 @@ public class MyStreamSocket extends Socket {
         inStream = new ObjectInputStream(socket.getInputStream());
     }
 
-    public void sendMessage(String message)
+    public void sendMessage(Message message)
             throws IOException {
         outStream.writeObject(message);
     } // end sendMessage
 
-    public String receiveMessage()
+    public Message receiveMessage()
             throws IOException, ClassNotFoundException {
         // read a line from the data stream
-        String message = (String)inStream.readObject();
+        Message message = (Message) inStream.readObject();
         return message;
     } //end receiveMessage
 
@@ -52,15 +52,15 @@ public class MyStreamSocket extends Socket {
         socket.close();
     }
 
-    public List<String> receiveAllMessages()
+    public List<Message> receiveAllMessages()
             throws IOException, ClassNotFoundException {
         // read a line from the data stream
-        List<String> message = (ArrayList<String>)inStream.readObject();
-        return message;
+        List<Message> messages = (ArrayList<Message>)inStream.readObject();
+        return messages;
     } //end receiveMessage
 
     //send all of the messages to the client
-    public void sendAllMessages(List<String> messages) throws IOException {
+    public void sendAllMessages(List<Message> messages) throws IOException {
         outStream.writeObject(messages);
     }
 } //end class

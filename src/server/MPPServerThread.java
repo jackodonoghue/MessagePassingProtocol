@@ -6,6 +6,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import common.Message;
+import common.MyStreamSocket;
+
 /**
  * This module is to be used with a concurrent Echo server.
  * Its run method carries out the logic of a client session.
@@ -17,9 +20,9 @@ class MPPServerThread implements Runnable {
     static final String endMessage = ".";
     static final String allMessageCharacter = "*";
     MyStreamSocket myDataSocket;
-    private List<String> messages;
+    private List<Message> messages;
     private List<MPPServerThread> clients;
-    private List<String> allMessages;
+    private List<Message> allMessages;
 
     MPPServerThread(MyStreamSocket myDataSocket) {
         this.myDataSocket = myDataSocket;
@@ -28,7 +31,7 @@ class MPPServerThread implements Runnable {
     //what happens in a thread
     public void run() {
         boolean done = false;
-        String message;
+        Message message;
 
         try {
             messages = new ArrayList<>();
@@ -36,16 +39,15 @@ class MPPServerThread implements Runnable {
             while (!done) {
                 message = myDataSocket.receiveMessage();
                 System.out.println("message received: " + message);
-                if ((message.trim()).equals(endMessage)) {
+                if ((message.getMessage().trim()).equals(endMessage)) {
                     //Session over; close the data socket.
                     System.out.println("Session over.");
                     myDataSocket.close();
                     done = true;
                 } //end if
-                else if(message.trim().equals(allMessageCharacter)){
+                else if(message.getMessage().trim().equals(allMessageCharacter)){
                     System.out.println("getting al messages");
-                    getAllMessages();
-                    myDataSocket.sendAllMessages(messages);
+                    myDataSocket.sendAllMessages(getAllMessages());
                 }
                 else {
                     // Now send the echo to the requester
@@ -59,11 +61,14 @@ class MPPServerThread implements Runnable {
         } // end catch
     } //end run
 
-    public List<String> getAllMessages(){
+    public List<Message> getAllMessages(){
         allMessages = new ArrayList<>();
         for (MPPServerThread client: clients) {
             client.messages.forEach(m -> this.allMessages.add(m));
         }
+
+        System.out.println(allMessages);
+
         return this.allMessages;
     }
 

@@ -2,10 +2,14 @@ package client;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class ClientInfoUI extends JPanel {
-    ClientInfoUI(String username) {
+    JButton logoutButton = new JButton("Logout");
+    ClientInfoUI(String username, ActionListener listener) {
         add(new JLabel("Welcome, " + username));
-        add(new JButton("Logout"));
+        logoutButton.addActionListener(listener);
+        add(logoutButton);
     }
 }

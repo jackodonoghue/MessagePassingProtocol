@@ -1,5 +1,8 @@
 package client;
 
+import common.Message;
+import common.MyStreamSocket;
+
 import java.net.*;
 import java.io.*;
 import java.util.List;
@@ -13,8 +16,8 @@ import java.util.List;
 
 public class MPPClientHelper {
 
-    static final String endMessage = ".";
-    static final String allMessagesCharacter = "*";
+    static final Message endMessage = new Message("", ".");
+    static final Message allMessagesCharacter = new Message("", "*");
     private MyStreamSocket mySocket;
     private InetAddress serverHost;
     private int serverPort;
@@ -28,8 +31,8 @@ public class MPPClientHelper {
     } // end constructor
 
 
-    public String getMessage(String message) throws SocketException, IOException, ClassNotFoundException {
-        String echo = "";
+    public Message getMessage(Message message) throws SocketException, IOException, ClassNotFoundException {
+        Message echo;
         mySocket.sendMessage(message);
         // now receive the echo
         echo = mySocket.receiveMessage();
@@ -41,7 +44,7 @@ public class MPPClientHelper {
         mySocket.close();
     } // end done
 
-    public List<String> getAllMessages() throws IOException, ClassNotFoundException {
+    public List<Message> getAllMessages() throws IOException, ClassNotFoundException {
         mySocket.sendMessage(allMessagesCharacter);
         return mySocket.receiveAllMessages();
     }

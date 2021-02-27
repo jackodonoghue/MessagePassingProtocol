@@ -3,6 +3,7 @@ package server;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
+import common.MyStreamSocket;
 
 /**
  * This module contains the application logic of an echo server
@@ -15,7 +16,6 @@ import java.util.List;
 
 public class MPPServer {
     private static ArrayList<MPPServerThread> clients = new ArrayList<>();
-    private static List<String> allMessages;
 
     public static void main(String[] args) {
         int serverPort = 7;    // default port
@@ -53,14 +53,5 @@ public class MPPServer {
         for (MPPServerThread client : clients) {
             client.setClients(clients);
         }
-    }
-
-    public static List<String> sendAllMessages() {
-        allMessages = new ArrayList<>();
-        for (MPPServerThread client : clients) {
-            client.getAllMessages().forEach(message -> allMessages.add(message));
-        }
-
-        return allMessages;
     }
 } // end class
