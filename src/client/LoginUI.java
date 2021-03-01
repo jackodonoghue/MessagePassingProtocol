@@ -31,16 +31,20 @@ public class LoginUI {
         return loginPanel;
     }
 
-    public int displayDialog() {
+    public int displayLoginDialog() {
         return JOptionPane.showConfirmDialog(null, getLoginPanel(),
                 "Login", JOptionPane.OK_CANCEL_OPTION);
     }
 
     public String getHostName() {
+        if (hostNameField.getText() == null || (hostNameField.getText() != null && hostNameField.getText().trim().equals("")))
+            return "localhost";
         return hostNameField.getText();
     }
 
     public String getPortNumber() {
+        if (portNumberField.getText() == null || (portNumberField.getText() != null && portNumberField.getText().trim().equals("")))
+            return "7";
         return portNumberField.getText();
     }
 

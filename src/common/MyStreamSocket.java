@@ -1,5 +1,8 @@
 package common;
 
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import javax.swing.*;
 import java.net.*;
 import java.io.*;
 import java.util.ArrayList;
@@ -10,57 +13,57 @@ import java.util.List;
  * methods for sending and receiving messages
  *
  * @author M. L. Liu
+ * @author J O'Donoghue
+ * <p>
+ * Modified to use secure sockets.
+ * Methods added to allow for the sending of all messages.
  */
-public class MyStreamSocket extends Socket {
-    private Socket socket;
+public class MyStreamSocket {
     private ObjectOutputStream outStream;
     private ObjectInputStream inStream;
+    private SSLSocket socket;
+    private SSLSocketFactory socketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
 
-    public MyStreamSocket(InetAddress acceptorHost,
-                   int acceptorPort) throws SocketException,
-            IOException {
-        socket = new Socket(acceptorHost, acceptorPort);
+    public MyStreamSocket(InetAddress acceptorHost, int acceptorPort) throws IOException {
+        socket = (SSLSocket) socketFactory.createSocket(acceptorHost, acceptorPort);
+        socket.startHandshake();
         setStreams();
-
     }
 
-    public MyStreamSocket(Socket socket) throws IOException {
+    public MyStreamSocket(SSLSocket socket) throws IOException {
         this.socket = socket;
         setStreams();
     }
 
-    private void setStreams( ) throws IOException{
-        // get an input stream for reading from the data socket
+    private void setStreams() throws IOException {
         outStream = new ObjectOutputStream(socket.getOutputStream());
         inStream = new ObjectInputStream(socket.getInputStream());
     }
 
-    public void sendMessage(Message message)
-            throws IOException {
+    public void sendMessage(Message message) throws IOException {
+        System.out.println("writing new message");
         outStream.writeObject(message);
-    } // end sendMessage
+    }
 
-    public Message receiveMessage()
-            throws IOException, ClassNotFoundException {
-        // read a line from the data stream
-        Message message = (Message) inStream.readObject();
-        return message;
-    } //end receiveMessage
+    public Message receiveMessage() throws IOException, ClassNotFoundException {
+        return (Message) inStream.readObject();
+    }
 
-    public void close()
-            throws IOException {
+    public void close() throws IOException {
         socket.close();
     }
 
-    public List<Message> receiveAllMessages()
-            throws IOException, ClassNotFoundException {
-        // read a line from the data stream
-        List<Message> messages = (ArrayList<Message>)inStream.readObject();
-        return messages;
-    } //end receiveMessage
+    public List<Message> receiveAllMessages() throws IOException, ClassNotFoundException {
+        System.out.println(inStream.readObject());
+        List<Message> messages = (ArrayList<Message>) inStream.readObject();
 
-    //send all of the messages to the client
-    public void sendAllMessages(List<Message> messages) throws IOException {
-        outStream.writeObject(messages);
+        return messages;
     }
-} //end class
+
+    public void sendAllMessages(List<Message> messages) throws IOException {
+        System.out.println("writing a list " + messages);
+        outStream.writeObject(messages);
+        outStream.reset();
+        System.out.println("done writing");
+    }
+}

@@ -3,10 +3,6 @@ package client;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.text.AbstractDocument;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DocumentFilter;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
@@ -14,6 +10,7 @@ public class SendMessageUI extends JPanel implements DocumentListener {
     private int counter;
     private JLabel counterLabel = new JLabel(this.counter + " Characters used");
     private JTextArea messageArea;
+
     SendMessageUI(ActionListener listener) {
         this.counter = 0;
         setLayout(new GridBagLayout());
@@ -58,8 +55,7 @@ public class SendMessageUI extends JPanel implements DocumentListener {
     }
 
     private JScrollPane setTextPanel() {
-        //text box
-        messageArea = new JTextArea(2,30);
+        messageArea = new JTextArea(2, 30);
         messageArea.getDocument().addDocumentListener(this);
         messageArea.setWrapStyleWord(false);
         messageArea.setLineWrap(true);

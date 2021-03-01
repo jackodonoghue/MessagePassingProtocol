@@ -25,7 +25,6 @@ public class ReceiveMessageUI extends JPanel {
         //Scrollbar for messages
         JScrollPane messageScroller = new JScrollPane(allMessagesPanel);
         messageScroller.setPreferredSize(new Dimension(100, 700));
-
         constraints.weightx = .8;
         constraints.weighty = 1;
         constraints.fill = GridBagConstraints.BOTH;
@@ -49,9 +48,8 @@ public class ReceiveMessageUI extends JPanel {
                 new EmptyBorder(10, 10, 10, 10));
         messagePanel.setBorder(border);
 
-        for (Message message : allMessages) {
-            System.out.println("all msg" + allMessages.size());
-            messagePanel.add(getMessageUI(message));
+        for (int i = allMessages.size() - 1; i >= 0; i--) {
+            messagePanel.add(getMessageUI(allMessages.get(i)));
         }
 
         return messagePanel;
@@ -64,7 +62,7 @@ public class ReceiveMessageUI extends JPanel {
                 new EmptyBorder(10, 10, 10, 10));
         oneMessagePanel.setBorder(border);
         oneMessagePanel.add(new JLabel(message.getUsername()));
-        oneMessagePanel.add(new JLabel(message.getMessage()));
+        oneMessagePanel.add(new JLabel("        " + message.getMessage()));
 
         return oneMessagePanel;
     }
