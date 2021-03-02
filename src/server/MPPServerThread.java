@@ -1,19 +1,20 @@
 package server;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-
 import common.Message;
 import common.MyStreamSocket;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This module is to be used with a concurrent Echo server.
  * Its run method carries out the logic of a client session.
  *
  * @author M. L. Liu
+ * @author J O'Donoghue
+ *
+ * Modified for use with Message passing protocol
+ *
  */
 
 class MPPServerThread implements Runnable {
@@ -35,7 +36,6 @@ class MPPServerThread implements Runnable {
 
         try {
             messages = new ArrayList<>();
-            //loop
             while (!done) {
                 message = myDataSocket.receiveMessage();
                 System.out.println("message received: " + message);
@@ -44,7 +44,7 @@ class MPPServerThread implements Runnable {
                     System.out.println("Session over.");
                     myDataSocket.close();
                     done = true;
-                } //end if
+                }
                 else if(message.getMessage().trim().equals(allMessageCharacter)){
                     System.out.println("getting al messages");
                     myDataSocket.sendAllMessages(getAllMessages());
@@ -53,13 +53,13 @@ class MPPServerThread implements Runnable {
                     // Now send the echo to the requester
                     messages.add(message);
                     myDataSocket.sendMessage(message);
-                } //end else
-            } //end while !done
+                }
+            }
         }// end try
         catch (Exception ex) {
             System.out.println("Exception caught in thread: " + ex);
         } // end catch
-    } //end run
+    }
 
     public List<Message> getAllMessages(){
         allMessages = new ArrayList<>();

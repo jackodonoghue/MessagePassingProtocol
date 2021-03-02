@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.List;
 
 public class UI {
     private static String hostname;
@@ -28,19 +29,17 @@ public class UI {
                 try {
                     System.out.println("sending");
                     client.sendMessage(new Message(username, messageUI.getMessageFromTextArea()));
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                } catch (ClassNotFoundException classNotFoundException) {
-                    classNotFoundException.printStackTrace();
+                } catch (IOException | ClassNotFoundException exception) {
+                    exception.printStackTrace();
                 }
             } else if (event.getText().trim().toLowerCase().equals("get all messages")) {
                 System.out.println("get all");
                 try {
-                    receiveMessageUI.setAllMessages(client.receiveAllMessages());
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                } catch (ClassNotFoundException classNotFoundException) {
-                    classNotFoundException.printStackTrace();
+                    List<Message> messageList = client.receiveAllMessages();
+                    System.out.println(messageList);
+                    receiveMessageUI.setAllMessages(messageList);
+                } catch (IOException | ClassNotFoundException exception) {
+                    exception.printStackTrace();
                 }
             }
         }
@@ -56,8 +55,8 @@ public class UI {
         login();
 
         try {
-            //start client backend thread
-            client = new MPPClient(hostname, portNumber, username);
+            //start client thread to handle backend
+            client = MPPClientFactory.getMPPClient(hostname, portNumber);
             Thread theThread = new Thread(client);
             theThread.start();
 
@@ -91,8 +90,6 @@ public class UI {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
 
     private static void login() throws IOException {

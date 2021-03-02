@@ -1,60 +1,62 @@
 package client;
 
 import common.Message;
+import common.MyStreamSocket;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.util.List;
 
 /**
  * This module contains the presentaton logic of an Echo Client.
  *
  * @author M. L. Liu
+ * @author J O'Donoghue
+ *
+ * Modified for use with Message passing protocol
  */
 public class MPPClient implements Runnable{
-    private final String endMessage = ".";
-    private final String allMessagesCharacter = "*";
     private BufferedReader br;
-    private InputStreamReader is;
-    private MPPClientHelper helper;
     private boolean done;
-    private Message message, echo;
-    private String hostName, portNumber;
-    private String username;
+    private final Message endMessage = new Message("", ".");
+    private final Message allMessagesCharacter = new Message("", "*");
+    private MyStreamSocket mySocket;
 
-    MPPClient(String hostName, String portNumber, String username) {
-        is = new InputStreamReader(System.in);
+    MPPClient(String hostName, String portNumber) throws IOException {
+        hostName = hostName == null || hostName.trim().equals("") ? "localhost" : portNumber;
+        portNumber = portNumber == null || portNumber.trim().equals("") ? "7" : portNumber;
+        InputStreamReader is = new InputStreamReader(System.in);
         br = new BufferedReader(is);
-        this.hostName = hostName;
-        this.portNumber = portNumber;
-        this.username = username;
-    } //end main
+        InetAddress serverHost = InetAddress.getByName(hostName);
+        int serverPort = Integer.parseInt(portNumber);
+        //Instantiates a stream-mode socket and wait for a connection.
+        this.mySocket = new MyStreamSocket(serverHost, serverPort);
+    }
 
     public void run() {
         try {
-            //connect to host with port number
-            helper = new MPPClientHelper(getHostName(hostName), getPortNumber(portNumber));
-
             done = false;
-
             //maintain connection to server
             while (!done) {
-                //send a message
                 System.out.println("Enter a line to receive an echo "
                         + "from the server, or a single period to quit.");
-                message = new Message(this.username, br.readLine());
+                Message message = new Message("", br.readLine());
+                System.out.println("message is " + message.getMessage());
 
                 //check for end connection
                 //end connection if requested
-                if ((message.getMessage().trim()).equals(endMessage)) {
+                if (message.equals(endMessage)) {
                     end();
                 }
-                else if (message.getMessage().trim().equals(allMessagesCharacter)){
-                    List<Message> messages = helper.getAllMessages();
+                else if (message.equals(allMessagesCharacter)){
+                    List<Message> messages = receiveAllMessages();
                     System.out.println(messages);
                 }
                 //otherwise 'get message'
                 else {
-                    echo = helper.getMessage(message);
+                    Message echo = sendMessage(message);
                     System.out.println(echo);
                 }
             } // end while
@@ -66,28 +68,18 @@ public class MPPClient implements Runnable{
 
     public void end() throws IOException {
         this.done = true;
-        helper.terminateConnection();
+        mySocket.sendMessage(endMessage);
+        mySocket.close();
     }
 
-    public void sendMessage(Message message) throws IOException, ClassNotFoundException {
-        echo = helper.getMessage(message);
-        System.out.println(echo);
+    public Message sendMessage(Message message) throws IOException, ClassNotFoundException {
+        mySocket.sendMessage(message);
+        return mySocket.receiveMessage();
     }
 
     public List<Message>
     receiveAllMessages() throws IOException, ClassNotFoundException {
-        return helper.getAllMessages();
-    }
-
-    private String getPortNumber(String portNum) throws IOException {
-        if (portNum.length() == 0)
-            portNum = "7";          // default port number
-        return portNum;
-    }
-
-    private String getHostName(String hostName) throws IOException {
-        if (hostName.length() == 0) // if user did not enter a name
-            hostName = "localhost";  //   use the default host name
-        return hostName;
+        mySocket.sendMessage(allMessagesCharacter);
+        return mySocket.receiveAllMessages();
     }
 } // end class
