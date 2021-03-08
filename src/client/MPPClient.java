@@ -14,10 +14,10 @@ import java.util.List;
  *
  * @author M. L. Liu
  * @author J O'Donoghue
- *
+ * <p>
  * Modified for use with Message passing protocol
  */
-public class MPPClient implements Runnable{
+public class MPPClient implements Runnable {
     private BufferedReader br;
     private boolean done;
     private final Message endMessage = new Message("", ".");
@@ -49,8 +49,7 @@ public class MPPClient implements Runnable{
                 //end connection if requested
                 if (message.equals(endMessage)) {
                     end();
-                }
-                else if (message.equals(allMessagesCharacter)){
+                } else if (message.equals(allMessagesCharacter)) {
                     List<Message> messages = receiveAllMessages();
                     System.out.println(messages);
                 }

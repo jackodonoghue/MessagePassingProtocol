@@ -12,9 +12,8 @@ import java.util.List;
  *
  * @author M. L. Liu
  * @author J O'Donoghue
- *
+ * <p>
  * Modified for use with Message passing protocol
- *
  */
 
 class MPPServerThread implements Runnable {
@@ -44,12 +43,10 @@ class MPPServerThread implements Runnable {
                     System.out.println("Session over.");
                     myDataSocket.close();
                     done = true;
-                }
-                else if(message.getMessage().trim().equals(allMessageCharacter)){
+                } else if (message.getMessage().trim().equals(allMessageCharacter)) {
                     System.out.println("getting al messages");
                     myDataSocket.sendAllMessages(getAllMessages());
-                }
-                else {
+                } else {
                     // Now send the echo to the requester
                     messages.add(message);
                     myDataSocket.sendMessage(message);
@@ -61,9 +58,9 @@ class MPPServerThread implements Runnable {
         } // end catch
     }
 
-    public List<Message> getAllMessages(){
+    public List<Message> getAllMessages() {
         allMessages = new ArrayList<>();
-        for (MPPServerThread client: clients) {
+        for (MPPServerThread client : clients) {
             client.messages.forEach(m -> this.allMessages.add(m));
         }
 

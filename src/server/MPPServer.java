@@ -16,9 +16,8 @@ import java.util.ArrayList;
  *
  * @author M. L. Liu
  * @author J O'Donoghue
- *
+ * <p>
  * Modified for use with Message passing protocol
- *
  */
 
 public class MPPServer {
@@ -53,7 +52,7 @@ public class MPPServer {
                 // wait to accept a connection
                 System.out.println("Waiting for a connection.");
                 MyStreamSocket myDataSocket = new MyStreamSocket
-                        ((SSLSocket)connectionSocket.accept());
+                        ((SSLSocket) connectionSocket.accept());
                 System.out.println("connection accepted");
                 //Create new client
                 MPPServerThread client = new MPPServerThread(myDataSocket);

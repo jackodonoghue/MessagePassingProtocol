@@ -49,7 +49,7 @@ public class ReceiveMessageUI extends JPanel {
                 new EmptyBorder(10, 10, 10, 10));
         messagePanel.setBorder(border);
 
-        for (int i = allMessages.size()-1; i >= 0; i--) {
+        for (int i = allMessages.size() - 1; i >= 0; i--) {
             System.out.println("all msg" + allMessages.get(i));
             messagePanel.add(getMessageUI(allMessages.get(i)));
         }

@@ -2,9 +2,11 @@ package common;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import java.net.*;
-import java.io.*;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.util.List;
 
 /**
@@ -13,16 +15,15 @@ import java.util.List;
  *
  * @author M. L. Liu
  * @author J O'Donoghue
- *
+ * <p>
  * Modified for use with Message passing protocol
- *
  */
 public class MyStreamSocket extends Socket {
     private SSLSocket socket;
     private ObjectOutputStream outStream;
     private ObjectInputStream inStream;
 
-    public MyStreamSocket(InetAddress acceptorHost,int acceptorPort) throws IOException {
+    public MyStreamSocket(InetAddress acceptorHost, int acceptorPort) throws IOException {
         SSLSocketFactory socketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
         socket = (SSLSocket) socketFactory.createSocket(acceptorHost, acceptorPort);
         socket.startHandshake();
@@ -35,7 +36,7 @@ public class MyStreamSocket extends Socket {
         setStreams();
     }
 
-    private void setStreams( ) throws IOException{
+    private void setStreams() throws IOException {
         // get an input stream for reading from the data socket
         outStream = new ObjectOutputStream(socket.getOutputStream());
         inStream = new ObjectInputStream(socket.getInputStream());

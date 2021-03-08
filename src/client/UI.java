@@ -24,8 +24,7 @@ public class UI {
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
-            }
-            else if (event.getText().trim().toLowerCase().equals("send")) {
+            } else if (event.getText().trim().toLowerCase().equals("send")) {
                 try {
                     System.out.println("sending");
                     client.sendMessage(new Message(username, messageUI.getMessageFromTextArea()));
@@ -104,7 +103,7 @@ public class UI {
                 login();
             } else {
                 username = loginUI.getUsername();
-                System.out.println("x value: " + loginUI.getUsername());
+                System.out.println("username: " + loginUI.getUsername());
             }
         } else {
             exit();

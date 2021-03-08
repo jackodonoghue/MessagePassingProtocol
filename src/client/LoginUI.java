@@ -6,8 +6,6 @@ import java.awt.*;
 public class LoginUI {
     private JTextField hostNameField, portNumberField, usernameField;
 
-    LoginUI() {
-    }
 
     private JPanel getLoginPanel() {
         hostNameField = new JTextField(10);

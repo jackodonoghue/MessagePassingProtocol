@@ -8,13 +8,11 @@ import java.util.Properties;
 /**
  * @author Crunchify.com
  * @author J O'Donoghue
- *
+ * <p>
  * Modified to use parameters for Message passing protocol
- *
  */
 
 public class MPPGetProperties {
-    private String result = "";
     private InputStream inputStream;
 
     private String keystore;
