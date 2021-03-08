@@ -1,3 +1,4 @@
-/out/
-/keystore/
 /.idea/
+/src/config.properties
+/keystore/
+/out/
