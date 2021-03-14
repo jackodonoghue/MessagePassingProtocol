@@ -1,8 +1,10 @@
 package server;
 
 import common.Message;
+import common.MessageType;
 import common.MyStreamSocket;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +25,7 @@ class MPPServerThread implements Runnable {
     private List<Message> messages;
     private List<MPPServerThread> clients;
     private List<Message> allMessages;
+    private UserStore userStore;
 
     MPPServerThread(MyStreamSocket myDataSocket) {
         this.myDataSocket = myDataSocket;
@@ -38,24 +41,55 @@ class MPPServerThread implements Runnable {
             while (!done) {
                 message = myDataSocket.receiveMessage();
                 System.out.println("message received: " + message);
-                if ((message.getMessage().trim()).equals(endMessage)) {
-                    //Session over; close the data socket.
-                    System.out.println("Session over.");
-                    myDataSocket.close();
-                    done = true;
-                } else if (message.getMessage().trim().equals(allMessageCharacter)) {
-                    System.out.println("getting al messages");
-                    myDataSocket.sendAllMessages(getAllMessages());
-                } else {
-                    // Now send the echo to the requester
-                    messages.add(message);
-                    myDataSocket.sendMessage(message);
+                switch (message.getType()) {
+                    case LOGIN:
+                        if(login(message.getUsername(), message.getPassword())){
+                            myDataSocket.sendMessage(new Message(message.getUsername(), "Logged in", MessageType.LOGIN));
+                        } else {
+                            myDataSocket.sendMessage(new Message(message.getUsername(), "Login failed. Incorrect password.", MessageType.LOGINERR));
+                        }
+                        break;
+                    case SEND:
+                        messages.add(message);
+                        myDataSocket.sendMessage(message);
+                        break;
+                    case GET:
+                        System.out.println("getting all messages");
+                        try {
+                            myDataSocket.sendAllMessages(getAllMessages());
+                        } catch (IOException e) {
+                            System.out.println("error sending messages");
+                            e.printStackTrace();
+                        }
+                        break;
+                    case LOGOUT:
+                        //Session over; close the data socket.
+                        System.out.println("Session over.");
+                        try {
+                            myDataSocket.close();
+                        } catch (IOException e) {
+                            System.out.println("error closing socket");
+                            e.printStackTrace();
+                        }
+                        done = true;
                 }
             }
         }// end try
         catch (Exception ex) {
             System.out.println("Exception caught in thread: " + ex);
         } // end catch
+    }
+
+    private boolean login(String username, String password) {
+        userStore = new UserStore(username, password);
+        try {
+            System.out.println("adding user");
+            return userStore.addUser();
+        } catch (IOException e) {
+            System.out.println("login failed");
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public List<Message> getAllMessages() {

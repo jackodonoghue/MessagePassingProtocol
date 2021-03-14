@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,12 +24,11 @@ public class MyStreamSocket extends Socket {
     private ObjectOutputStream outStream;
     private ObjectInputStream inStream;
 
-    public MyStreamSocket(InetAddress acceptorHost, int acceptorPort) throws IOException {
+    public MyStreamSocket(InetAddress acceptorHost, int acceptorPort, String username, String password) throws IOException {
         SSLSocketFactory socketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
         socket = (SSLSocket) socketFactory.createSocket(acceptorHost, acceptorPort);
         socket.startHandshake();
         setStreams();
-
     }
 
     public MyStreamSocket(SSLSocket socket) throws IOException {
@@ -42,15 +42,25 @@ public class MyStreamSocket extends Socket {
         inStream = new ObjectInputStream(socket.getInputStream());
     }
 
-    public void sendMessage(Message message)
-            throws IOException {
-        outStream.writeObject(message);
+    public Message sendMessage(Message message) {
+        try {
+            outStream.writeObject(message);
+            return new Message(MessageType.SEND);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new Message(MessageType.SENDERR);
+        }
     }
 
-    public Message receiveMessage()
-            throws IOException, ClassNotFoundException {
+    public Message receiveMessage(){
         // read a line from the data stream
-        return (Message) inStream.readObject();
+        try {
+            return (Message) inStream.readObject();
+        }
+        catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return new Message(MessageType.SENDERR);
+        }
     }
 
     public void close()
@@ -58,11 +68,17 @@ public class MyStreamSocket extends Socket {
         socket.close();
     }
 
-    public List<Message> receiveAllMessages()
-            throws IOException, ClassNotFoundException {
+    public List<Message> receiveAllMessages() {
         // read a line from the data stream
-        List<Message> messages = (List<Message>) inStream.readObject();
-        return messages;
+        try {
+            return (List<Message>) inStream.readObject();
+        }
+        catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            List<Message> list = new ArrayList<>();
+            list.add(new Message(MessageType.GETERR));
+            return list;
+        }
     }
 
     //send all of the messages to the client

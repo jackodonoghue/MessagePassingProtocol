@@ -1,6 +1,7 @@
 package client;
 
 import common.Message;
+import common.MessageType;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -71,6 +72,11 @@ public class ReceiveMessageUI extends JPanel {
 
     public void setAllMessages(List<Message> allMessages) {
         this.allMessages = allMessages;
+
+        if(this.allMessages.get(0).getType() == MessageType.GETERR) {
+            JOptionPane.showMessageDialog(null, "Error getting messages");
+            return;
+        }
 
         System.out.println(allMessages);
         allMessagesPanel.removeAll();
