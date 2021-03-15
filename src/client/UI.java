@@ -51,8 +51,6 @@ public class UI {
 
             //start client thread to handle backend
             client = MPPClientFactory.getMPPClient(username, password);
-            Thread theThread = new Thread(client);
-            theThread.start();
 
             //Login Dialog
             if (login()) {

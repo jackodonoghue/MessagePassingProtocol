@@ -19,7 +19,7 @@ import java.util.List;
  * <p>
  * Modified for use with Message passing protocol
  */
-public class MPPClient implements Runnable {
+public class MPPClient {
     private final Message endMessage = new Message(MessageType.LOGOUT);
     private final Message allMessagesCharacter = new Message(MessageType.GET);
     private MyStreamSocket mySocket;
@@ -46,6 +46,4 @@ public class MPPClient implements Runnable {
         mySocket.sendMessage(allMessagesCharacter);
         return mySocket.receiveAllMessages();
     }
-
-    public void run() {}
 } // end class
