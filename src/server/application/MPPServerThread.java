@@ -1,8 +1,8 @@
-package server;
+package server.application;
 
 import common.Message;
 import common.MessageType;
-import common.MyStreamSocket;
+import server.session.ServerStreamSocket;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,65 +19,64 @@ import java.util.List;
  */
 
 class MPPServerThread implements Runnable {
-    static final String endMessage = ".";
-    static final String allMessageCharacter = "*";
-    MyStreamSocket myDataSocket;
+    ServerStreamSocket socket;
     private List<Message> messages;
     private List<MPPServerThread> clients;
     private List<Message> allMessages;
     private UserStore userStore;
 
-    MPPServerThread(MyStreamSocket myDataSocket) {
-        this.myDataSocket = myDataSocket;
+    MPPServerThread(ServerStreamSocket socket) {
+        this.socket = socket;
     }
 
-    //what happens in a thread
     public void run() {
         boolean done = false;
         Message message;
 
-        try {
             messages = new ArrayList<>();
             while (!done) {
-                message = myDataSocket.receiveMessage();
-                System.out.println("message received: " + message);
+                message = socket.receiveMessage();
+                System.out.println("message received: " + message.getType());
                 switch (message.getType()) {
                     case LOGIN:
-                        if(login(message.getUsername(), message.getPassword())){
-                            myDataSocket.sendMessage(new Message(message.getUsername(), "Logged in", MessageType.LOGIN));
+                        String username = (String)message.getPayload().get(0);
+                        String password = (String)message.getPayload().get(1);
+                        List<String> payload = new ArrayList();
+                        payload.add(username);
+                        if(login(username, password)){
+                            payload.add("Logged in");
+                            socket.sendMessage(new Message(payload, MessageType.LOGINOK));
                         } else {
-                            myDataSocket.sendMessage(new Message(message.getUsername(), "Login failed. Incorrect password.", MessageType.LOGINERR));
+                            payload.add("Login failed. Incorrect password.");
+                            socket.sendMessage(new Message(payload, MessageType.LOGINERR));
+                            socket.closeConnection();
                         }
                         break;
                     case SEND:
                         messages.add(message);
-                        myDataSocket.sendMessage(message);
+                        if(!socket.sendMessage(new Message(MessageType.SENDOK)))
+                            socket.sendMessage(new Message(MessageType.SENDERR));
                         break;
                     case GET:
-                        System.out.println("getting all messages");
-                        try {
-                            myDataSocket.sendAllMessages(getAllMessages());
-                        } catch (IOException e) {
-                            System.out.println("error sending messages");
-                            e.printStackTrace();
-                        }
+                        if(!socket.sendMessage(new Message(getAllMessages(),MessageType.GETOK)))
+                            socket.sendMessage(new Message(MessageType.GETERR));
                         break;
                     case LOGOUT:
-                        //Session over; close the data socket.
                         System.out.println("Session over.");
-                        try {
-                            myDataSocket.close();
-                        } catch (IOException e) {
-                            System.out.println("error closing socket");
-                            e.printStackTrace();
+                        if(socket.closeConnection()){
+                            System.out.println("Connection closed");
+                        }
+                        else {
+                            System.out.println("Error closing connection.");
                         }
                         done = true;
+                        break;
+                    case CONNERR:
+                        System.out.println("Connection error. Shutting down");
+                        socket.closeConnection();
                 }
             }
-        }// end try
-        catch (Exception ex) {
-            System.out.println("Exception caught in thread: " + ex);
-        } // end catch
+
     }
 
     private boolean login(String username, String password) {
@@ -95,7 +94,7 @@ class MPPServerThread implements Runnable {
     public List<Message> getAllMessages() {
         allMessages = new ArrayList<>();
         for (MPPServerThread client : clients) {
-            client.messages.forEach(m -> this.allMessages.add(m));
+            this.allMessages.addAll(client.messages);
         }
 
         System.out.println(allMessages);
@@ -106,4 +105,4 @@ class MPPServerThread implements Runnable {
     public void setClients(ArrayList<MPPServerThread> clients) {
         this.clients = clients;
     }
-} //end class
+}

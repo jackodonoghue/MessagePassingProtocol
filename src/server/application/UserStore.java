@@ -1,4 +1,4 @@
-package server;
+package server.application;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -36,9 +36,8 @@ public class UserStore {
     }
 
     private boolean checkPassword() {
-        try {
-            Scanner scanner = new Scanner(passwordFile);
-            if (!scanner.hasNextLine()) {
+        try (Scanner scanner = new Scanner(passwordFile)) {
+            if (scanner.hasNextLine()) {
                 String password = scanner.nextLine();
                 System.out.println("password is " + password);
                 System.out.println(this.password);
@@ -54,14 +53,19 @@ public class UserStore {
 
     private void addPassword() throws IOException {
         Files.createFile(passwordFile.toPath());
+        FileWriter myWriter = null;
         try {
-            FileWriter myWriter = new FileWriter(BASE_PATH + username + "\\password.txt");
+            myWriter = new FileWriter(BASE_PATH + username + "\\password.txt");
             myWriter.write(password.trim());
             myWriter.close();
             System.out.println("Added password." + password);
         } catch (IOException e) {
             System.out.println("Error adding password");
             e.printStackTrace();
+        }
+        finally {
+            assert myWriter != null;
+            myWriter.close();
         }
     }
 }

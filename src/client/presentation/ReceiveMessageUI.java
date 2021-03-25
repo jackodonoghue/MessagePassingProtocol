@@ -1,4 +1,4 @@
-package client;
+package client.presentation;
 
 import common.Message;
 import common.MessageType;
@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReceiveMessageUI extends JPanel {
-    List<Message> allMessages = new ArrayList<>();
-    JPanel allMessagesPanel;
+    private List<Message> allMessages = new ArrayList<>();
+    private JPanel allMessagesPanel;
 
     ReceiveMessageUI(ActionListener listener) {
         setLayout(new GridBagLayout());
@@ -64,14 +64,14 @@ public class ReceiveMessageUI extends JPanel {
         Border border = BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.DARK_GRAY),
                 new EmptyBorder(10, 10, 10, 10));
         oneMessagePanel.setBorder(border);
-        oneMessagePanel.add(new JLabel(message.getUsername()));
-        oneMessagePanel.add(new JLabel(message.getMessage()));
+        oneMessagePanel.add(new JLabel((String)message.getPayload().get(0)));
+        oneMessagePanel.add(new JLabel((String)message.getPayload().get(1)));
 
         return oneMessagePanel;
     }
 
-    public void setAllMessages(List<Message> allMessages) {
-        this.allMessages = allMessages;
+    public void setAllMessages(Message allMessages) {
+        this.allMessages = (List<Message>) allMessages.getPayload();
 
         if(this.allMessages.get(0).getType() == MessageType.GETERR) {
             JOptionPane.showMessageDialog(null, "Error getting messages");

@@ -1,4 +1,4 @@
-package client;
+package client.presentation;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -8,7 +8,8 @@ import java.awt.event.ActionListener;
 
 public class SendMessageUI extends JPanel implements DocumentListener {
     private int counter;
-    private JLabel counterLabel = new JLabel(this.counter + " Characters used");
+    private final String CHARS_STRING = " Characters used";
+    private JLabel counterLabel = new JLabel(this.counter + CHARS_STRING);
     private JTextArea messageArea;
 
     SendMessageUI(ActionListener listener) {
@@ -71,13 +72,13 @@ public class SendMessageUI extends JPanel implements DocumentListener {
     @Override
     public void insertUpdate(DocumentEvent e) {
         this.counter++;
-        this.counterLabel.setText(this.counter + " Characters used");
+        this.counterLabel.setText(this.counter + CHARS_STRING);
     }
 
     @Override
     public void removeUpdate(DocumentEvent e) {
         this.counter--;
-        this.counterLabel.setText(this.counter + " Characters used");
+        this.counterLabel.setText(this.counter + CHARS_STRING);
     }
 
     @Override

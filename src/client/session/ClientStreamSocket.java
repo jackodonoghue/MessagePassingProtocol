@@ -1,4 +1,7 @@
-package common;
+package client.session;
+
+import common.Message;
+import common.MessageType;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
@@ -19,25 +22,19 @@ import java.util.List;
  * <p>
  * Modified for use with Message passing protocol
  */
-public class MyStreamSocket extends Socket {
+public class ClientStreamSocket extends Socket {
     private SSLSocket socket;
     private ObjectOutputStream outStream;
     private ObjectInputStream inStream;
 
-    public MyStreamSocket(InetAddress acceptorHost, int acceptorPort, String username, String password) throws IOException {
+    public ClientStreamSocket(InetAddress acceptorHost, int acceptorPort) throws IOException {
         SSLSocketFactory socketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
         socket = (SSLSocket) socketFactory.createSocket(acceptorHost, acceptorPort);
         socket.startHandshake();
         setStreams();
     }
 
-    public MyStreamSocket(SSLSocket socket) throws IOException {
-        this.socket = socket;
-        setStreams();
-    }
-
     private void setStreams() throws IOException {
-        // get an input stream for reading from the data socket
         outStream = new ObjectOutputStream(socket.getOutputStream());
         inStream = new ObjectInputStream(socket.getInputStream());
     }
@@ -45,44 +42,32 @@ public class MyStreamSocket extends Socket {
     public Message sendMessage(Message message) {
         try {
             outStream.writeObject(message);
-            return new Message(MessageType.SEND);
+            return receiveMessage();
         } catch (IOException e) {
             e.printStackTrace();
-            return new Message(MessageType.SENDERR);
+            return new Message(MessageType.CONNERR);
         }
     }
 
     public Message receiveMessage(){
-        // read a line from the data stream
         try {
             return (Message) inStream.readObject();
         }
         catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
-            return new Message(MessageType.SENDERR);
+            return new Message(MessageType.CONNERR);
         }
     }
 
-    public void close()
-            throws IOException {
-        socket.close();
-    }
-
-    public List<Message> receiveAllMessages() {
-        // read a line from the data stream
+    public synchronized boolean closeConnection() {
+//        socket.shutdownInput();
+//        socket.shutdownOutput();
         try {
-            return (List<Message>) inStream.readObject();
-        }
-        catch (IOException | ClassNotFoundException e) {
+            socket.close();
+            return true;
+        } catch (IOException e) {
             e.printStackTrace();
-            List<Message> list = new ArrayList<>();
-            list.add(new Message(MessageType.GETERR));
-            return list;
+            return false;
         }
-    }
-
-    //send all of the messages to the client
-    public void sendAllMessages(List<Message> messages) throws IOException {
-        outStream.writeObject(messages);
     }
 }

@@ -1,8 +1,7 @@
-package client;
+package client.presentation;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Arrays;
 
 public class LoginUI {
     private JTextField usernameField;

@@ -1,4 +1,4 @@
-package common;
+package server.application;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

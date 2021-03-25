@@ -1,6 +1,8 @@
-package client;
+package client.presentation;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import java.awt.event.ActionListener;
 
 public class ClientInfoUI extends JPanel {

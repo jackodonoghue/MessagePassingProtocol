@@ -1,14 +1,12 @@
-package server;
+package server.application;
 
-import common.MPPGetProperties;
-import common.MyStreamSocket;
+import server.session.ServerStreamSocket;
 
 import javax.net.ssl.*;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.security.KeyStore;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * This module contains the application logic of an echo server
@@ -48,16 +46,22 @@ public class MPPServer {
             // instantiates a stream socket for accepting connections
             SSLServerSocketFactory serverSocketFactory = context.getServerSocketFactory();
             SSLServerSocket connectionSocket = (SSLServerSocket) serverSocketFactory.createServerSocket(serverPort);
-            System.out.println("Echo server ready.");
+            System.out.println("Server started.");
 
             while (true) {
                 // wait to accept a connection
                 System.out.println("Waiting for a connection.");
-                MyStreamSocket myDataSocket = new MyStreamSocket
-                        ((SSLSocket) connectionSocket.accept());
+                ServerStreamSocket socket = null;
+                try {
+                    socket = new ServerStreamSocket
+                            ((SSLSocket) connectionSocket.accept());
+                } catch (IOException e) {
+                    System.err.println("error creating connection");
+                    e.printStackTrace();
+                }
                 System.out.println("connection accepted");
                 //Create new client
-                MPPServerThread client = new MPPServerThread(myDataSocket);
+                MPPServerThread client = new MPPServerThread(socket);
                 // Start a thread to handle this client's session
                 Thread theThread = new Thread(client);
                 theThread.start();
@@ -68,6 +72,7 @@ public class MPPServer {
         } // end try
         catch (Exception ex) {
             ex.printStackTrace();
+
         } // end catch
     }
 

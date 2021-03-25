@@ -7,7 +7,12 @@ public enum MessageType {
     LOGOUT (103),
     LOGINERR (200),
     SENDERR (201),
-    GETERR (202);
+    GETERR (202),
+    LOGINOK(300),
+    SENDOK(301),
+    GETOK(302),
+    CONNERR(400);
+
 
     MessageType(int i) {
     }
