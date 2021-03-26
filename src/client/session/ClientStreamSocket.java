@@ -40,7 +40,7 @@ public class ClientStreamSocket {
         inStream = new ObjectInputStream(socket.getInputStream());
     }
 
-    public synchronized Message sendMessage(Message message) {
+    public Message sendMessage(Message message) {
         try {
             outStream.reset();
             outStream.writeObject(message);
@@ -51,10 +51,12 @@ public class ClientStreamSocket {
         }
     }
 
+    //used in send message to return the message type and list of messages.
     public Message receiveMessage(){
         try {
             return (Message) inStream.readObject();
         } catch (EOFException f){
+            //this exception is thrown when the connection is terminated while reading
             return new Message(MessageType.CONNERR);
         }
         catch (IOException | ClassNotFoundException e) {
@@ -63,7 +65,7 @@ public class ClientStreamSocket {
         }
     }
 
-    public synchronized boolean closeConnection() {
+    public boolean closeConnection() {
         try {
             //Not using sendMessage() as the client would try to receive a message on a closed connection. In the case of LOGOUT, the client does not need a response
             outStream.writeObject(new Message(MessageType.LOGOUT));

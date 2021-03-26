@@ -9,6 +9,8 @@ import java.util.Properties;
  * @author Crunchify.com
  * @author J O'Donoghue
  * <p>
+ *
+ * This class is used to  retrieve properties from a file not added in git
  * Modified to use parameters for Message passing protocol
  */
 

@@ -7,6 +7,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Scanner;
 
+/**
+ * This module contains the presentation logic of an Echo Client.
+ *
+ * @author J O'Donoghue
+ * <p>
+ * Used for managing users. users are persisted to a folder with the password stored in plaintext
+ */
+
 public class UserStore {
     private final String username;
     private final String password;

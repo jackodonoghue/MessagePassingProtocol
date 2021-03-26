@@ -33,14 +33,15 @@ public class MPPServer implements Runnable{
         MPPGetProperties properties;
 
         try {
+            //read keystore properties from file
             properties = new MPPGetProperties();
             String keystoreName = properties.getLocation() + properties.getKeystoreName();
             char[] keystorePassword = properties.getPassword().trim().toCharArray();
             char[] certificatePassword = properties.getPassword().trim().toCharArray();
 
+            //get keystore to access keys/cert
             KeyStore keyStore = KeyStore.getInstance(properties.getKeystore());
             keyStore.load(new FileInputStream(keystoreName), keystorePassword);
-
             KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
             keyManagerFactory.init(keyStore, certificatePassword);
 
@@ -68,8 +69,8 @@ public class MPPServer implements Runnable{
                 // Start a thread to handle this client's session
                 Thread theThread = new Thread(client);
                 theThread.start();
+                //add to list of clients. used to notify all when server is shutdown
                 clients.add(client);
-                // and go on to the next client
                 System.out.println("not done");
             } //end while forever
             for (MPPServerThread client : clients) {

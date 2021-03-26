@@ -28,11 +28,17 @@ public class UI {
                 exit("Thank you come again");
             } else if (event.getText().trim().toLowerCase().equals("send")) {
                 System.out.println("sending");
+                String messageText = messageUI.getMessageFromTextArea();
                 List<String> payload = new ArrayList();
                 payload.add(username);
-                payload.add(messageUI.getMessageFromTextArea());
-                if (client.sendMessage(new Message(payload, MessageType.SEND)).getType().equals(MessageType.SENDERR)) {
-                    JOptionPane.showMessageDialog(null, "Error sending message");
+                if(messageText.equals("")){
+                    JOptionPane.showMessageDialog(null, "You cannot send an empty message");
+                }
+                else{
+                    payload.add(messageText);
+                    if (client.sendMessage(new Message(payload, MessageType.SEND)).getType().equals(MessageType.SENDERR)) {
+                        JOptionPane.showMessageDialog(null, "Error sending message");
+                    }
                 }
             } else if (event.getText().trim().toLowerCase().equals("get all messages")) {
                 Message messageList;
@@ -89,18 +95,14 @@ public class UI {
             frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
             frame.addWindowListener(new WindowAdapter() {
                 public void windowClosing(WindowEvent e) {
-                    closeWindow();
+                    System.out.println("closed window");
+                    exit("Thank you. Come again.");
                 }
             });
             frame.setVisible(true);
         } else {
             exit("Wrong username password combo.");
         }
-    }
-
-    private static void closeWindow() {
-        System.out.println("closed window");
-        exit("Thank you. Come again.");
     }
 
     private static boolean login() {
@@ -117,9 +119,8 @@ public class UI {
             payload.add(username);
             payload.add(password);
 
-            MessageType login = client.sendMessage(new Message(payload, MessageType.LOGIN)).getType();
-            System.out.println(login);
-            return login == MessageType.LOGINOK;
+            //if the client gets a loginok message from the server the client will be logged in
+            return client.sendMessage(new Message(payload, MessageType.LOGIN)).getType() == MessageType.LOGINOK;
         } else {
             return false;
         }
@@ -137,6 +138,7 @@ public class UI {
     private static void exit(String exitMessage) {
         System.out.println("exiting");
         JOptionPane.showMessageDialog(null, exitMessage);
+        //close connection if it exists. Might not be initialised if the user exits before entering credentials
         if(client != null)
             client.end();
         System.exit(0);

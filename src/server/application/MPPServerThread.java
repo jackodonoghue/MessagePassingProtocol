@@ -21,7 +21,8 @@ import java.util.List;
 
 class MPPServerThread implements Runnable {
     protected ServerStreamSocket socket;
-    private static List<Message> testMessage = Collections.synchronizedList(new ArrayList<>());
+    //syncronised list of all messages sent during a session. syncronised so that only one client can access at a time
+    private static List<Message> allMessages = Collections.synchronizedList(new ArrayList<>());
     private UserStore userStore;
 
     MPPServerThread(ServerStreamSocket socket) {
@@ -51,15 +52,15 @@ class MPPServerThread implements Runnable {
                         }
                         break;
                     case SEND:
-                        testMessage.add(message);
+                        allMessages.add(message);
                         if(!socket.sendMessage(new Message(MessageType.SENDOK)))
                             socket.sendMessage(new Message(MessageType.SENDERR));
                         break;
                     case GET:
-                        for(Message m : testMessage){
+                        for(Message m : allMessages){
                             System.out.println("m: " + m.getPayload().get(1));
                         }
-                        if(!socket.sendMessage(new Message(testMessage,MessageType.GETOK)))
+                        if(!socket.sendMessage(new Message(allMessages,MessageType.GETOK)))
                             socket.sendMessage(new Message(MessageType.GETERR));
                         break;
                     case LOGOUT:
@@ -81,6 +82,7 @@ class MPPServerThread implements Runnable {
     }
 
     private boolean login(String username, String password) {
+        //add/access user details
         userStore = new UserStore(username, password);
         try {
             System.out.println("adding user");
