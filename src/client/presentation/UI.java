@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +37,6 @@ public class UI {
             } else if (event.getText().trim().toLowerCase().equals("get all messages")) {
                 Message messageList;
                 messageList = client.sendMessage(new Message(MessageType.GET));
-                System.out.println(messageList);
                 receiveMessageUI.setAllMessages(messageList);
             }
         }
@@ -52,6 +52,9 @@ public class UI {
         //start client thread to handle backend
         try {
             client = MPPClientFactory.getMPPClient();
+        } catch (ConnectException connectException) {
+            connectException.printStackTrace();
+            exit("Could not connect to server");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -118,7 +121,6 @@ public class UI {
             System.out.println(login);
             return login == MessageType.LOGINOK;
         } else {
-            exit("Thank you. Come again");
             return false;
         }
     }
@@ -129,17 +131,14 @@ public class UI {
             login();
         } else {
             username = loginUI.getUsername();
-            System.out.println("" + detailType + ": " + userDetail);
         }
     }
 
     private static void exit(String exitMessage) {
         System.out.println("exiting");
-        if (client != null && client.end()) {
-            JOptionPane.showMessageDialog(null, exitMessage);
-            System.exit(0);
-        } else {
-            JOptionPane.showMessageDialog(null, "Error closing connection");
-        }
+        JOptionPane.showMessageDialog(null, exitMessage);
+        if(client != null)
+            client.end();
+        System.exit(0);
     }
 }

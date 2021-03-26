@@ -5,6 +5,7 @@ import common.MessageType;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -22,7 +23,7 @@ import java.util.List;
  * <p>
  * Modified for use with Message passing protocol
  */
-public class ClientStreamSocket extends Socket {
+public class ClientStreamSocket {
     private SSLSocket socket;
     private ObjectOutputStream outStream;
     private ObjectInputStream inStream;
@@ -39,8 +40,9 @@ public class ClientStreamSocket extends Socket {
         inStream = new ObjectInputStream(socket.getInputStream());
     }
 
-    public Message sendMessage(Message message) {
+    public synchronized Message sendMessage(Message message) {
         try {
+            outStream.reset();
             outStream.writeObject(message);
             return receiveMessage();
         } catch (IOException e) {
@@ -52,6 +54,8 @@ public class ClientStreamSocket extends Socket {
     public Message receiveMessage(){
         try {
             return (Message) inStream.readObject();
+        } catch (EOFException f){
+            return new Message(MessageType.CONNERR);
         }
         catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -60,9 +64,9 @@ public class ClientStreamSocket extends Socket {
     }
 
     public synchronized boolean closeConnection() {
-//        socket.shutdownInput();
-//        socket.shutdownOutput();
         try {
+            //Not using sendMessage() as the client would try to receive a message on a closed connection. In the case of LOGOUT, the client does not need a response
+            outStream.writeObject(new Message(MessageType.LOGOUT));
             socket.close();
             return true;
         } catch (IOException e) {

@@ -1,7 +1,6 @@
 package client.application;
 
 import common.Message;
-import common.MessageType;
 import client.session.ClientStreamSocket;
 
 import java.io.IOException;
@@ -29,7 +28,6 @@ public class MPPClient {
     }
 
     public boolean end() {
-        SOCKET.sendMessage(new Message(MessageType.LOGOUT));
         return SOCKET.closeConnection();
     }
 } // end class

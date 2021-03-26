@@ -20,15 +20,18 @@ import java.util.ArrayList;
  * Modified for use with Message passing protocol
  */
 
-public class MPPServer {
+public class MPPServer implements Runnable{
     private static ArrayList<MPPServerThread> clients = new ArrayList<>();
+    private boolean done = false;
 
-    public static void main(String[] args) {
+    public MPPServer() {
+    }
+
+    @Override
+    public void run() {
         int serverPort = 7;    // default port
         MPPGetProperties properties;
 
-        if (args.length == 1)
-            serverPort = Integer.parseInt(args[0]);
         try {
             properties = new MPPGetProperties();
             String keystoreName = properties.getLocation() + properties.getKeystoreName();
@@ -48,7 +51,7 @@ public class MPPServer {
             SSLServerSocket connectionSocket = (SSLServerSocket) serverSocketFactory.createServerSocket(serverPort);
             System.out.println("Server started.");
 
-            while (true) {
+            while (!done) {
                 // wait to accept a connection
                 System.out.println("Waiting for a connection.");
                 ServerStreamSocket socket = null;
@@ -66,21 +69,20 @@ public class MPPServer {
                 Thread theThread = new Thread(client);
                 theThread.start();
                 clients.add(client);
-                informAllClientsOfNewClients();
                 // and go on to the next client
+                System.out.println("not done");
             } //end while forever
+            for (MPPServerThread client : clients) {
+                client.socket.closeConnection();
+            }
+            System.out.println("done");
         } // end try
         catch (Exception ex) {
             ex.printStackTrace();
-
         } // end catch
     }
 
-    private static void informAllClientsOfNewClients() {
-        for (MPPServerThread client : clients) {
-            client.setClients(clients);
-        }
+    public void setDone(boolean done) {
+        this.done = done;
     }
-
-
 }

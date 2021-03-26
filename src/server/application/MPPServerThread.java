@@ -6,6 +6,7 @@ import server.session.ServerStreamSocket;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -19,10 +20,8 @@ import java.util.List;
  */
 
 class MPPServerThread implements Runnable {
-    ServerStreamSocket socket;
-    private List<Message> messages;
-    private List<MPPServerThread> clients;
-    private List<Message> allMessages;
+    protected ServerStreamSocket socket;
+    private static List<Message> testMessage = Collections.synchronizedList(new ArrayList<>());
     private UserStore userStore;
 
     MPPServerThread(ServerStreamSocket socket) {
@@ -33,7 +32,6 @@ class MPPServerThread implements Runnable {
         boolean done = false;
         Message message;
 
-            messages = new ArrayList<>();
             while (!done) {
                 message = socket.receiveMessage();
                 System.out.println("message received: " + message.getType());
@@ -53,18 +51,21 @@ class MPPServerThread implements Runnable {
                         }
                         break;
                     case SEND:
-                        messages.add(message);
+                        testMessage.add(message);
                         if(!socket.sendMessage(new Message(MessageType.SENDOK)))
                             socket.sendMessage(new Message(MessageType.SENDERR));
                         break;
                     case GET:
-                        if(!socket.sendMessage(new Message(getAllMessages(),MessageType.GETOK)))
+                        for(Message m : testMessage){
+                            System.out.println("m: " + m.getPayload().get(1));
+                        }
+                        if(!socket.sendMessage(new Message(testMessage,MessageType.GETOK)))
                             socket.sendMessage(new Message(MessageType.GETERR));
                         break;
                     case LOGOUT:
                         System.out.println("Session over.");
                         if(socket.closeConnection()){
-                            System.out.println("Connection closed");
+                            System.out.println("Connection closed" + socket.getPortNumber());
                         }
                         else {
                             System.out.println("Error closing connection.");
@@ -72,11 +73,11 @@ class MPPServerThread implements Runnable {
                         done = true;
                         break;
                     case CONNERR:
-                        System.out.println("Connection error. Shutting down");
+                        System.out.println("Connection error. Shutting down" + socket.getPortNumber());
                         socket.closeConnection();
+                        done = true;
                 }
             }
-
     }
 
     private boolean login(String username, String password) {
@@ -89,20 +90,5 @@ class MPPServerThread implements Runnable {
             e.printStackTrace();
         }
         return false;
-    }
-
-    public List<Message> getAllMessages() {
-        allMessages = new ArrayList<>();
-        for (MPPServerThread client : clients) {
-            this.allMessages.addAll(client.messages);
-        }
-
-        System.out.println(allMessages);
-
-        return this.allMessages;
-    }
-
-    public void setClients(ArrayList<MPPServerThread> clients) {
-        this.clients = clients;
     }
 }

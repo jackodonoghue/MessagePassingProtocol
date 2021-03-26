@@ -4,9 +4,11 @@ import common.Message;
 import common.MessageType;
 
 import javax.net.ssl.SSLSocket;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.List;
 
@@ -19,7 +21,7 @@ import java.util.List;
  * <p>
  * Modified for use with Message passing protocol
  */
-public class ServerStreamSocket extends Socket {
+public class ServerStreamSocket {
     private SSLSocket socket;
     private ObjectOutputStream outStream;
     private ObjectInputStream inStream;
@@ -36,6 +38,8 @@ public class ServerStreamSocket extends Socket {
 
     public boolean sendMessage(Message message) {
         try {
+            //reset stops out stream from referencing old state of an object. was preventing get all messages from displaying updated lists
+            outStream.reset();
             outStream.writeObject(message);
             return true;
         } catch (IOException e) {
@@ -47,22 +51,31 @@ public class ServerStreamSocket extends Socket {
     public Message receiveMessage(){
         try {
             return (Message) inStream.readObject();
-        }
-        catch (IOException | ClassNotFoundException e) {
+        } catch (EOFException e) {
+            return new Message(MessageType.CONNERR);
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
             return new Message(MessageType.CONNERR);
         }
     }
 
     public synchronized boolean closeConnection() {
-//        socket.shutdownInput();
-//        socket.shutdownOutput();
+        boolean closed;
         try {
+            outStream.close();
+            inStream.close();
             socket.close();
-            return true;
+            System.out.println();
+            closed = true;
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
+            System.out.println("Connection already closed");
+            closed = false;
         }
+        return closed;
+    }
+
+    public int getPortNumber() {
+        return socket.getPort();
     }
 }
