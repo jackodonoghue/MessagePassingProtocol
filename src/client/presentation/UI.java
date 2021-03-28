@@ -1,7 +1,6 @@
 package client.presentation;
 
 import client.application.MPPClient;
-import client.application.MPPClientFactory;
 import common.Message;
 import common.MessageType;
 
@@ -57,7 +56,7 @@ public class UI {
 
         //start client thread to handle backend
         try {
-            client = MPPClientFactory.getMPPClient();
+            client = new MPPClient();
         } catch (ConnectException connectException) {
             connectException.printStackTrace();
             exit("Could not connect to server");

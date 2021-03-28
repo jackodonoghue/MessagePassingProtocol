@@ -38,7 +38,7 @@ public class UserStore {
         } else {
             System.out.println("user exists");
             System.out.println(userDirectory.getAbsolutePath());
-            System.out.println(checkPassword());
+            System.out.println( "Password correct: " + checkPassword());
             return checkPassword();
         }
     }
@@ -47,8 +47,8 @@ public class UserStore {
         try (Scanner scanner = new Scanner(passwordFile)) {
             if (scanner.hasNextLine()) {
                 String password = scanner.nextLine();
-                System.out.println("password is " + password);
-                System.out.println(this.password);
+                System.out.println("password is: " + password);
+                System.out.println("password attempted: " + this.password);
                 scanner.close();
                 return this.password.equals(password.trim());
             }

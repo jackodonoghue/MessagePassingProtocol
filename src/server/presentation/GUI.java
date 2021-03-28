@@ -20,7 +20,6 @@ public class GUI {
     }
 
     public static void main(String[] args) {
-
         JFrame frame = new JFrame("GUI");
         frame.setContentPane(new GUI().serverPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

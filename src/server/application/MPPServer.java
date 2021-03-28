@@ -71,7 +71,6 @@ public class MPPServer implements Runnable{
                 theThread.start();
                 //add to list of clients. used to notify all when server is shutdown
                 clients.add(client);
-                System.out.println("not done");
             } //end while forever
             for (MPPServerThread client : clients) {
                 client.socket.closeConnection();

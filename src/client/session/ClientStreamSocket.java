@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
+import java.net.PortUnreachableException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,14 +41,15 @@ public class ClientStreamSocket {
         inStream = new ObjectInputStream(socket.getInputStream());
     }
 
-    public Message sendMessage(Message message) {
+    public boolean sendMessage(Message message) {
         try {
+            //stops stream from referencing old objects.
             outStream.reset();
             outStream.writeObject(message);
-            return receiveMessage();
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
-            return new Message(MessageType.CONNERR);
+            return false;
         }
     }
 
@@ -55,25 +57,14 @@ public class ClientStreamSocket {
     public Message receiveMessage(){
         try {
             return (Message) inStream.readObject();
-        } catch (EOFException f){
+        } catch (IOException | ClassNotFoundException f){
             //this exception is thrown when the connection is terminated while reading
-            return new Message(MessageType.CONNERR);
-        }
-        catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            f.printStackTrace();
             return new Message(MessageType.CONNERR);
         }
     }
 
-    public boolean closeConnection() {
-        try {
-            //Not using sendMessage() as the client would try to receive a message on a closed connection. In the case of LOGOUT, the client does not need a response
-            outStream.writeObject(new Message(MessageType.LOGOUT));
-            socket.close();
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
+    public SSLSocket getSocket() {
+        return this.socket;
     }
 }

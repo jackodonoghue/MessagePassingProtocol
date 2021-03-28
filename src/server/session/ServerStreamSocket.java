@@ -38,7 +38,8 @@ public class ServerStreamSocket {
 
     public boolean sendMessage(Message message) {
         try {
-            //reset stops out stream from referencing old state of an object. was preventing get all messages from displaying updated lists
+            //reset stops out stream from referencing old state of an object.
+            // was preventing get all messages from sending updated lists
             outStream.reset();
             outStream.writeObject(message);
             return true;
@@ -62,8 +63,6 @@ public class ServerStreamSocket {
     public synchronized boolean closeConnection() {
         boolean closed;
         try {
-            outStream.close();
-            inStream.close();
             socket.close();
             System.out.println();
             closed = true;

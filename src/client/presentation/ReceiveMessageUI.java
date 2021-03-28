@@ -50,9 +50,10 @@ public class ReceiveMessageUI extends JPanel {
                 new EmptyBorder(10, 10, 10, 10));
         messagePanel.setBorder(border);
 
-        for (int i = allMessages.size() - 1; i >= 0; i--) {
-            System.out.println("all msg" + allMessages.get(i));
-            messagePanel.add(getMessageUI(allMessages.get(i)));
+        if (allMessages.size() != 0) {
+            for (int i = allMessages.size() - 1; i >= 0; i--) {
+                messagePanel.add(getMessageUI(allMessages.get(i)));
+            }
         }
 
         return messagePanel;
@@ -73,6 +74,11 @@ public class ReceiveMessageUI extends JPanel {
     public void setAllMessages(Message allMessages) {
         this.allMessages = (List<Message>) allMessages.getPayload();
 
+        if(this.allMessages.size() == 0) {
+            JOptionPane.showMessageDialog(null, "No Messages to Get");
+            return;
+        }
+
         if(this.allMessages.get(0).getType() == MessageType.GETERR) {
             JOptionPane.showMessageDialog(null, "Error getting messages");
             return;
@@ -81,7 +87,7 @@ public class ReceiveMessageUI extends JPanel {
         for(Message m : this.allMessages){
             System.out.println("Receive msg UI: " + m.getPayload().get(1));
         }
-        System.out.println(allMessages);
+
         allMessagesPanel.removeAll();
         allMessagesPanel.add(getMessagePanel());
         allMessagesPanel.revalidate();
