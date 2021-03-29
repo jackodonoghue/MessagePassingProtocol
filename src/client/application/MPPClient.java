@@ -5,8 +5,9 @@ import client.session.ClientStreamSocket;
 import common.MessageType;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.InetAddress;
-import java.net.Socket;
+import java.net.UnknownHostException;
 
 /**
  * This module contains the presentation logic of an Echo Client.
@@ -19,7 +20,7 @@ import java.net.Socket;
 public class MPPClient {
     private final ClientStreamSocket SOCKET;
 
-    public MPPClient() throws IOException {
+    public MPPClient() throws ConnectException, UnknownHostException, IOException {
         InetAddress HOSTNAME = InetAddress.getByName("localhost");
         int PORT_NUMBER = 7;
         this.SOCKET = new ClientStreamSocket(HOSTNAME, PORT_NUMBER);
@@ -32,16 +33,18 @@ public class MPPClient {
             return new Message(MessageType.CONNERR);
     }
 
-    public boolean end() {
+    public void end() {
         try {
-            //using the sockets send message instead of MPPClient's send as retrieving an object
-            // can result in error as the connection is closed
-            SOCKET.sendMessage(new Message(MessageType.LOGOUT));
+            boolean finishedSending = false;
+            //wait until client is finished sending, then close socket
+            while(!finishedSending){
+                //using the sockets send message instead of MPPClient's send as retrieving an object
+                // can result in error as the connection is closed
+                finishedSending = SOCKET.sendMessage(new Message(MessageType.LOGOUT));
+            }
             SOCKET.getSocket().close();
-            return true;
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
         }
     }
 } // end class

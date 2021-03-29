@@ -85,7 +85,7 @@ public class ReceiveMessageUI extends JPanel {
         }
 
         for(Message m : this.allMessages){
-            System.out.println("Receive msg UI: " + m.getPayload().get(1));
+            System.out.println("Receive msg Main: " + m.getPayload().get(1));
         }
 
         allMessagesPanel.removeAll();

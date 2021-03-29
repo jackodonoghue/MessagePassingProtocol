@@ -3,6 +3,7 @@ package client.presentation;
 import client.application.MPPClient;
 import common.Message;
 import common.MessageType;
+import common.MPPGetProperties;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,10 +12,12 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UI {
+public class Main {
+
     private static String username;
     private static MPPClient client = null;
     private static SendMessageUI messageUI;
@@ -48,11 +51,23 @@ public class UI {
     };
 
     public static void main(String[] args) {
-        //create JFrame
-        JFrame frame = new JFrame("Twitter Messaging Protocol");
-        frame.setLayout(new GridBagLayout());
-        GridBagConstraints constraints = new GridBagConstraints();
+        //get SSL properties
+        MPPGetProperties properties = null;
+        try {
+            properties = new MPPGetProperties("client");
+        }catch (NullPointerException e) {
+           e.printStackTrace();
+           exit("Could not access Properties File");
+        }catch (IOException e) {
+            e.printStackTrace();
+            exit("Could not access Keystore");
+        }
+        
+        String trustStoreLocation = (properties != null ? properties.getLocation() : null) + properties.getKeystoreName();
 
+        //set SSL properties
+        System.setProperty("javax.net.ssl.trustStore", trustStoreLocation);
+        System.setProperty("javax.net.ssl.trustStorePassword", properties.getPassword());
 
         //start client thread to handle backend
         try {
@@ -60,44 +75,19 @@ public class UI {
         } catch (ConnectException connectException) {
             connectException.printStackTrace();
             exit("Could not connect to server");
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            exit("Invalid Hostname");
         } catch (IOException e) {
             e.printStackTrace();
+            exit("Could not crete Socket");
         }
 
         //Login Dialog
         if (login()) {
-            //display clients frontend
-            constraints.weighty = .1;
-            constraints.weightx = 1;
-            constraints.fill = GridBagConstraints.HORIZONTAL;
-            constraints.gridy = 0;
-            frame.add(new ClientInfoUI(username, listener), constraints);
-
-            //Add send message UI
-            messageUI = new SendMessageUI(listener);
-            constraints.weighty = .25;
-            constraints.weightx = 1;
-            constraints.fill = GridBagConstraints.BOTH;
-            constraints.gridy = 1;
-            frame.add(messageUI, constraints);
-
-            //Add receive message UI
-            receiveMessageUI = new ReceiveMessageUI(listener);
-            constraints.weighty = 1;
-            constraints.weightx = 1;
-            constraints.fill = GridBagConstraints.BOTH;
-            constraints.gridy = 2;
-            frame.add(receiveMessageUI, constraints);
-
-            frame.setSize(500, 500);
-            frame.setLocationRelativeTo(null);
-            frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-            frame.addWindowListener(new WindowAdapter() {
-                public void windowClosing(WindowEvent e) {
-                    System.out.println("closed window");
-                    exit("Thank you. Come again.");
-                }
-            });
+            //create JFrame
+            JFrame frame = new JFrame("Twitter Messaging Protocol");
+            createClientFrontEnd(frame);
             frame.setVisible(true);
         } else {
             exit("Wrong username password combo.");
@@ -138,8 +128,47 @@ public class UI {
         System.out.println("exiting");
         JOptionPane.showMessageDialog(null, exitMessage);
         //close connection if it exists. Might not be initialised if the user exits before entering credentials
-        if(client != null)
+        if(client != null){
+            System.out.println("client.end");
             client.end();
+        }
         System.exit(0);
+    }
+
+    private static void createClientFrontEnd(JFrame frame) {
+        frame.setLayout(new GridBagLayout());
+        GridBagConstraints constraints = new GridBagConstraints();
+        //display clients frontend
+        constraints.weighty = .1;
+        constraints.weightx = 1;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridy = 0;
+        frame.add(new ClientInfoUI(username, listener), constraints);
+
+        //Add send message Main
+        messageUI = new SendMessageUI(listener);
+        constraints.weighty = .25;
+        constraints.weightx = 1;
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.gridy = 1;
+        frame.add(messageUI, constraints);
+
+        //Add receive message Main
+        receiveMessageUI = new ReceiveMessageUI(listener);
+        constraints.weighty = 1;
+        constraints.weightx = 1;
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.gridy = 2;
+        frame.add(receiveMessageUI, constraints);
+
+        frame.setSize(500, 500);
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        frame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                System.out.println("closed window");
+                exit("Thank you. Come again.");
+            }
+        });
     }
 }

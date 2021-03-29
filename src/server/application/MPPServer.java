@@ -1,5 +1,6 @@
 package server.application;
 
+import common.MPPGetProperties;
 import server.session.ServerStreamSocket;
 
 import javax.net.ssl.*;
@@ -34,7 +35,7 @@ public class MPPServer implements Runnable{
 
         try {
             //read keystore properties from file
-            properties = new MPPGetProperties();
+            properties = new MPPGetProperties("server");
             String keystoreName = properties.getLocation() + properties.getKeystoreName();
             char[] keystorePassword = properties.getPassword().trim().toCharArray();
             char[] certificatePassword = properties.getPassword().trim().toCharArray();

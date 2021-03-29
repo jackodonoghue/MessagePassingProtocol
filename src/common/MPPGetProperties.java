@@ -1,4 +1,4 @@
-package server.application;
+package common;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -22,7 +22,7 @@ public class MPPGetProperties {
     private String keystoreName;
     private String location;
 
-    public MPPGetProperties() throws IOException {
+    public MPPGetProperties(String application) throws IOException {
         try {
             Properties prop = new Properties();
             String propFileName = "config.properties";
@@ -40,8 +40,11 @@ public class MPPGetProperties {
             // get the property value and print it out
             keystore = prop.getProperty("keystore");
             password = prop.getProperty("password");
-            keystoreName = prop.getProperty("name");
-            location = prop.getProperty("server-location");
+            if(application.equals("server"))
+                keystoreName = prop.getProperty("server");
+            else
+                keystoreName = prop.getProperty("client");
+            location = prop.getProperty(application + "-location");
         } catch (Exception e) {
             System.out.println("Exception: " + e);
         } finally {

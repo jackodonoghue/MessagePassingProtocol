@@ -30,8 +30,10 @@ public class ClientStreamSocket {
     private ObjectInputStream inStream;
 
     public ClientStreamSocket(InetAddress acceptorHost, int acceptorPort) throws IOException {
-        SSLSocketFactory socketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
-        socket = (SSLSocket) socketFactory.createSocket(acceptorHost, acceptorPort);
+        SSLSocketFactory socketFactory =
+                (SSLSocketFactory) SSLSocketFactory.getDefault();
+        socket =
+                (SSLSocket) socketFactory.createSocket(acceptorHost, acceptorPort);
         socket.startHandshake();
         setStreams();
     }
