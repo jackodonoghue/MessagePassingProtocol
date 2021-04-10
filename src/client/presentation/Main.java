@@ -90,7 +90,8 @@ public class Main {
             createClientFrontEnd(frame);
             frame.setVisible(true);
         } else {
-            exit("Wrong username password combo.");
+            JOptionPane.showMessageDialog(null, "Wrong username password combo. Shutting down.");
+            System.exit(0);
         }
     }
 
@@ -106,11 +107,16 @@ public class Main {
 
             List<String> payload = new ArrayList();
             payload.add(username);
-            payload.add(password);
+             payload.add(password);
 
             //if the client gets a loginok message from the server the client will be logged in
             return client.sendMessage(new Message(payload, MessageType.LOGIN)).getType() == MessageType.LOGINOK;
-        } else {
+        }
+        else if (result == JOptionPane.CANCEL_OPTION || result == JOptionPane.CLOSED_OPTION) {
+            exit("Thank you. Come again.");
+            return false;
+        }
+        else {
             return false;
         }
     }
@@ -125,13 +131,13 @@ public class Main {
     }
 
     private static void exit(String exitMessage) {
-        System.out.println("exiting");
         JOptionPane.showMessageDialog(null, exitMessage);
         //close connection if it exists. Might not be initialised if the user exits before entering credentials
         if(client != null){
             System.out.println("client.end");
             client.end();
         }
+        System.out.println("exiting");
         System.exit(0);
     }
 

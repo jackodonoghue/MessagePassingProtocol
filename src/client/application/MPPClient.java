@@ -35,13 +35,9 @@ public class MPPClient {
 
     public void end() {
         try {
-            boolean finishedSending = false;
-            //wait until client is finished sending, then close socket
-            while(!finishedSending){
-                //using the sockets send message instead of MPPClient's send as retrieving an object
-                // can result in error as the connection is closed
-                finishedSending = SOCKET.sendMessage(new Message(MessageType.LOGOUT));
-            }
+            //using the sockets send message instead of MPPClient's send as retrieving an object
+            // can result in error as the connection is closed
+            SOCKET.sendMessage(new Message(MessageType.LOGOUT));
             SOCKET.getSocket().close();
         } catch (IOException e) {
             e.printStackTrace();
